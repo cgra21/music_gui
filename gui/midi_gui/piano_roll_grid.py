@@ -12,7 +12,7 @@ from PyQt5.QtGui import QPen, QColor
 
 from PyQt5.QtWidgets import QGraphicsScene
 from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsTextItem
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPointF
 
 from noteButton import noteButton
 from actions.synth_manager import SynthManager
@@ -42,18 +42,6 @@ class PianoRollGrid(QGraphicsScene):
             note_number = (self.rows - i - 1) + 21
             note_name, octave = self.noteName(note_number)
 
-            if ((i + 21) % 12) in [1,3,6,8,10]:
-                bg_color = QColor('lightblue')  # Background color for black keys
-            else:
-                bg_color = QColor('white')  # Background color for white keys
-
-            # Create a full-width background rectangle for each row
-            bg_rect = QGraphicsRectItem(0, y, self.cols * self.x_size + self.key_width, self.y_size)
-            bg_rect.setBrush(bg_color)
-            bg_rect.setPen(QPen(Qt.NoPen))
-            self.addItem(bg_rect)   
-
-
             key = QGraphicsRectItem(0, y, self.key_width, self.y_size)
             if ((i+21) % 12) in [1, 3, 6, 8, 10]:  
                 key.setBrush(QColor('black'))
@@ -68,9 +56,8 @@ class PianoRollGrid(QGraphicsScene):
                 label.setPos(5, y + (self.y_size - label.boundingRect().height()) / 2)  # Adjust label position
                 self.addItem(label)
 
-
-        self.drawMeasures(self.cols)
         self.drawHorizontalLines()
+        self.drawMeasures(self.cols)
 
     def noteName(self, midi_number):
         note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -111,7 +98,7 @@ class PianoRollGrid(QGraphicsScene):
     def drawMeasures(self, cols):
         dark_pen = QPen(Qt.darkGray)
         dark_pen.setWidth(2)  # Optional: Make the line thicker for visibility
-        for j in range(cols):
+        for j in range(cols + 1):
             if j % 4 == 0:  # Every 4th column
                 x = j * self.x_size + self.key_width
                 self.addLine(x, 0, x, self.rows * self.y_size, dark_pen)
@@ -123,6 +110,16 @@ class PianoRollGrid(QGraphicsScene):
                 self.addLine(x, 0, x, self.rows * self.y_size, light_pen)
     
     def drawHorizontalLines(self):
+        for i in range(self.rows):
+            y = i * self.y_size
+            for j in range(self.cols):
+                x = j * self.x_size + self.key_width
+                bg_color = QColor('lightblue') if ((i + 21) % 12) in [1,3,6,8,10] else QColor('white')
+                bg_rect = QGraphicsRectItem(x, y, self.x_size, self.y_size)
+                bg_rect.setBrush(bg_color)
+                bg_rect.setPen(QPen(Qt.NoPen))
+                self.addItem(bg_rect)
+    
         light_pen = QPen(QColor(140, 233, 236))
         for i in range(self.rows):
             y = i * self.y_size
@@ -154,34 +151,44 @@ class PianoRollGrid(QGraphicsScene):
         self.note_buttons.clear() 
 
     def addMeasure(self):
-        measure_length = 4  # Assuming each measure adds 4 beats/columns
-        self.cols += measure_length  # Increase the number of columns
         self.extendGrid()
 
     def removeMeasure(self):
-        measure_length = 4
-        self.cols -= measure_length
         self.reduceGrid()
 
     def extendGrid(self):
-        start_col = self.cols - 4
-        for i in range(self.rows):
-            y = i * self.y_size
-            for j in range(start_col, self.cols):
-                x = j * self.x_size + self.key_width
-                bg_color = QColor('lightblue') if ((i + 21) % 12) in [1,3,6,8,10] else QColor('white')
-                bg_rect = QGraphicsRectItem(x, y, self.x_size, self.y_size)
-                bg_rect.setBrush(bg_color)
-                bg_rect.setPen(QPen(Qt.NoPen))
-                self.addItem(bg_rect)
-        
+        self.cols += 4
+
+        new_width = self.cols * self.x_size + self.key_width
+        self.setSceneRect(0, 0, new_width, self.height())
+
         self.drawHorizontalLines()
         self.drawMeasures(self.cols)
 
-
     def reduceGrid(self):
-        # Implement the logic to reduce the grid size, similar to extendGrid but in reverse
-        pass
+        measure_length = 4  # This should match the measure length used in extendGrid
+        if self.cols > measure_length:
+            # Calculate the x-coordinate from where to start removing items
+            start_col = self.cols - measure_length
+            x_start = start_col * self.x_size + self.key_width
+
+            # Reduce the number of columns
+            self.cols -= measure_length
+
+            # Update the scene rectangle to the new dimensions
+            new_width = self.cols * self.x_size + self.key_width
+            new_height = self.rows * self.y_size
+            self.setSceneRect(0, 0, new_width, new_height)
+
+            # Collect all items whose bounding rectangles extend beyond the new grid width
+            items_to_remove = [item for item in self.items() if item.sceneBoundingRect().right() >= x_start]
+            for item in items_to_remove:
+                self.removeItem(item)
+            
+            self.drawHorizontalLines()
+            self.drawMeasures(self.cols)
+        else:
+            print("Cannot reduce grid further without having fewer than measure length columns.")
 
 if __name__ == '__main__':
     grid = PianoRollGrid(50, 50, 50, 20)  

@@ -11,7 +11,9 @@ class Menu(QMenuBar):
                  midi_callback=None, 
                  tensor_callback=None, 
                  new_callback = None,
-                 instrument_callback=None) -> None:
+                 instrument_callback=None,
+                 add_callback=None,
+                 remove_callback=None) -> None:
         super().__init__(parent)
         self.synth_manager = synth_manager
 
@@ -19,6 +21,8 @@ class Menu(QMenuBar):
         self.tensor_callback = tensor_callback
         self.new_callback = new_callback
         self.instrument_callback = instrument_callback
+        self.add_callback = add_callback
+        self.remove_callback = remove_callback
 
         self._create_actions()
         self._create_menu_bar()
@@ -54,6 +58,16 @@ class Menu(QMenuBar):
         self.addMenu(editMenu)
         editMenu.addAction(self.addMeasure)
         editMenu.addAction(self.removeMeasure)
+        if self.add_callback:
+            print("Added addMeasure callback")
+            self.addMeasure.triggered.connect(self.add_callback)
+            editMenu.addAction(self.addMeasure)
+        
+        if self.remove_callback:
+            print("Added removeMeasure")
+            self.removeMeasure.triggered.connect(self.remove_callback)
+            editMenu.addAction(self.removeMeasure)
+
         # editMenu.addAction(self.copyAction)
         # editMenu.addAction(self.pasteAction)
         # editMenu.addAction(self.cutAction)

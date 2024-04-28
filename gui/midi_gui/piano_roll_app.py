@@ -32,13 +32,13 @@ class Window(QMainWindow):
         self.centralWidget = Viewer(synth=self.synth)
         self.centralWidget.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self.setCentralWidget(self.centralWidget)
-        
         self.setMenuBar(Menu(self,
                              synth_manager=self.synth,
                              midi_callback=self.export_midi, 
                              tensor_callback=self.save_tensor, 
                              new_callback=self.newAction,
-                             add_callback=))
+                             add_callback=self.addMeasure,
+                             remove_callback=self.removeMeasure))
 
     def export_midi(self):
         print("Exporting MIDI...")
@@ -63,6 +63,13 @@ class Window(QMainWindow):
         else:
             print("Not Updating!")
 
+    def addMeasure(self):
+        grid = self.centralWidget.scene()
+        grid.addMeasure()
+
+    def removeMeasure(self):
+        grid = self.centralWidget.scene()
+        grid.removeMeasure()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
