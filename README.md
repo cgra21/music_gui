@@ -15,6 +15,9 @@ Install the package
 
 # Usage
 
+In order to start the program, run the main.py file in the midi_gui directory:
+python main.py
+
 The program has two main uses, creation of midi files, and creation of text tensors for input to text models.
 
 Measures are divided into four beats, there is currently not support for time signatures other than 4/4
