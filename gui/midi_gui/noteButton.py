@@ -26,9 +26,13 @@ class noteButton(QGraphicsRectItem):
         self.is_resizing_left = False
         self.moving = False
 
+        self.x = x
+        self.y = y
         self.start_y = y
         self.start_x = self.rect().left()
         self.end_x = self.rect().left() + self.rect().width()
+
+        self.setZValue(10000)
 
     def hoverMoveEvent(self, event):
         if abs(event.pos().x() - self.rect().right()) < 10:
@@ -69,12 +73,13 @@ class noteButton(QGraphicsRectItem):
 
     # TODO FIX SNAPPING ISSUE, HONESTLY NO IDEA WHY SO IT STAYS FOR NOW
     def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemPositionChange:
+        if change == QGraphicsItem.ItemPositionChange and self.scene():
             # Constrain the y-coordinate to remain constant, only x-coordinate can change
+            max_x = self.scene().cols * self.scene().x_size + self.scene().key_width
             increment = self.base_width * 0.25
             snapped_x = round(value.x() / increment) * increment
             # print(snapped_x)
-            return QPointF(snapped_x, self.pos().y())
+            return QPointF(snapped_x, self.scenePos().y())
         return super().itemChange(change, value)
     
 if __name__ == '__main__':

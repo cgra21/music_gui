@@ -12,12 +12,14 @@ from PyQt5.QtGui import QPen, QColor
 
 from PyQt5.QtWidgets import QGraphicsScene
 from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsTextItem
-from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtCore import Qt
 
 from noteButton import noteButton
 from actions.synth_manager import SynthManager
 
 class PianoRollGrid(QGraphicsScene):
+
+
     def __init__(self, rows, cols, x_size, y_size, synth: SynthManager) -> None:
         super().__init__()
         self.rows = rows
@@ -84,7 +86,6 @@ class PianoRollGrid(QGraphicsScene):
         if isinstance(items[0], noteButton): # check if there already exists a note, if so, remove it
             note = items[0]
             self.removeItem(note)
-            
             # Remove from note list
             if note in self.note_buttons:
                 self.note_buttons.remove(note)
@@ -135,11 +136,12 @@ class PianoRollGrid(QGraphicsScene):
                 self.addLine(x, 0, x, self.rows * self.y_size, dark_pen)
 
     def addNoteButton(self, row_index, col_index):
-        x = col_index * self.x_size + self.key_width
+        x = col_index * (self.x_size) + (self.key_width)
         y = row_index * self.y_size
         button = noteButton(x, y, self.x_size, self.y_size, row_index)
         self.addItem(button)
         self.note_buttons.append(button)
+        print(f'NoteButton added at x={x}, y={y}, scenePos={button.scenePos().x()}')
         return button
 
     def get_note_buttons(self):
@@ -177,8 +179,7 @@ class PianoRollGrid(QGraphicsScene):
 
             # Update the scene rectangle to the new dimensions
             new_width = self.cols * self.x_size + self.key_width
-            new_height = self.rows * self.y_size
-            self.setSceneRect(0, 0, new_width, new_height)
+            self.setSceneRect(0, 0, new_width, self.height())
 
             # Collect all items whose bounding rectangles extend beyond the new grid width
             items_to_remove = [item for item in self.items() if item.sceneBoundingRect().right() >= x_start]
