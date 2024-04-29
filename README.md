@@ -41,4 +41,6 @@ If you wish to hear the pitches, click on the keyboard on the left, and it will 
 
 - When moving a note, it will snap back to its original position when moved more than once
 
+- No way to adjust temp **CURRENT PRIORITY**
+
 
