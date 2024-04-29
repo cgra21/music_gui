@@ -16,7 +16,6 @@ You can now start the program by running:
 
 - python main.py
 
-
 # Usage
 
 In order to start the program, run the main.py file in the midi_gui directory:
