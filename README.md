@@ -9,9 +9,13 @@ Download the repository:
 Navigate to the repository on your local machine.
 
 Install the dependencies
+
 - pip install -r requirements.txt
-Install the package
-- pip install -e .
+
+You can now start the program by running:
+
+- python main.py
+
 
 # Usage
 
